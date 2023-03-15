@@ -1,5 +1,7 @@
 window.setup = setup
 window.draw = draw
+window.preload = preload
+window.mouseClicked = mouseClicked
 if (p5Instance) {
     p5Instance.remove()
 }
