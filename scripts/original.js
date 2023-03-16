@@ -4,7 +4,6 @@
     let tailCount = 25
     let boxes = []
     let globalSpeed = 1
-    let particleCount = 20
     let gear
     let darkTailCount = 10
     function preload() {
@@ -131,7 +130,7 @@
             if (currentHue < 0) {
                 currentHue *= -1
             }
-            fill(170 + currentHue, this.movedDistance / 2 + random(0, 50), this.brightness)
+            fill(170 + currentHue, this.movedDistance / 2 + random(20, 30), this.brightness)
             sphere(10)
             pop()
         }
