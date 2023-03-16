@@ -20,7 +20,6 @@
             box.directionY = sin(angleA[i])
             boxes.push(box)
         }
-        diamond.blend(0, 0, 638, 640, 0, 0, 638, 640, OVERLAY)
     }
     function draw() {
         translate(width/2, height/2)
