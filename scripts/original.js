@@ -1,37 +1,32 @@
 {
     let angleA = []
-    let angleB = []
-    let tailCount = 25
+    let tailCount = 35
     let boxes = []
     let globalSpeed = 1
-    let gear
     let darkTailCount = 10
+    let diamond
     function preload() {
-        gear = loadModel('assets/gems/gear.obj')
+        diamond = loadImage("assets/original/diamond.png")
     }
     function setup() {
-        createCanvas(500, 500, WEBGL)
-        blendMode(ADD)
+        createCanvas(500, 500)
+        imageMode(CENTER)
         for (let i = 0; i < tailCount; i++) {
             angleA.push(random(-5, 5))
-            angleB.push(random(-5, 5))
         }
         for (let i = 0; i < 10; i++) {
             let box = new TailBox()
-            box.directionX = sin(angleA[i]) * cos(angleB[i])
-            box.directionY = sin(angleA[i]) * sin(angleB[i])
-            box.directionZ = cos(angleA[i])
+            box.directionX = cos(angleA[i])
+            box.directionY = sin(angleA[i])
             boxes.push(box)
         }
-        camera(700, 700, 700, 0, 0, 0, 0, 1, 0);
+        diamond.blend(0, 0, 638, 640, 0, 0, 638, 640, OVERLAY)
     }
     function draw() {
-        orbitControl()
-        background(0)
+        translate(width/2, height/2)
         noStroke()
         fill(255)
-        noLights()
-        colorMode(HSB, 360, 100, 100)
+        colorMode(HSB, 360, 100, 100, 100)
         if (mouseIsPressed) {
             globalSpeed = 3
             particleCount = 75
@@ -41,13 +36,11 @@
         }
         for (let i = 0; i < tailCount; i++) {
             angleA[i] = (noise(frameCount * 0.001 + i + 555) - 0.5) * 2 * 5
-            angleB[i] = (noise(frameCount * 0.002 + i + 149) - 0.5) * 2 * 5
         }
         for (let i = 0; i < tailCount; i++) {
             let tailBox = new TailBox()
-            tailBox.directionX = sin(angleA[i]) * cos(angleB[i])
-            tailBox.directionY = sin(angleA[i]) * sin(angleB[i])
-            tailBox.directionZ = cos(angleA[i])
+            tailBox.directionX = cos(angleA[i])
+            tailBox.directionY = sin(angleA[i])
             if (i > tailCount - darkTailCount - 1) {
                 tailBox.brightness = 0
             }
@@ -59,79 +52,69 @@
                 boxes.splice(i, 1)
             }
         }
-        for (let i = 0; i < 1000; i++) {
-            stroke(0)
+        for (let i = 0; i < 300; i++) {
+            stroke(0, 50)
             let a = random(-5, 5)
-            let b = random(-5, 5)
-            let x = sin(a) * cos(b) * 600
-            let y = sin(a) * sin(b) * 600
-            let z = cos(a) * 600
-            line(0, 0, 0, x, y, z)
+            let x = cos(a) * 600
+            let y = sin(a) * 600
+            line(0, 0, x, y)
         }
         for (let i = 0; i < 5; i++) {
             let tailBox = new TailBox()
             let a = random(-5, 5)
-            let b = random(-5, 5)
-            tailBox.directionX = sin(a) * cos(b)
-            tailBox.directionY = sin(a) * sin(b)
-            tailBox.directionZ = cos(a)
+            tailBox.directionX = cos(a)
+            tailBox.directionY = sin(a)
             tailBox.scaleDivideFactor = 300
             boxes.push(tailBox)
         }
-
-        colorMode(RGB)
-
+        push()
+        scale(0.05)
+        image(diamond, 0, 0)
+        fill(0, 0, 0, random(0, 20))
         noStroke()
-        pointLight(180, 130, 255, -250, 0, 250)
-        pointLight(180, 130, 255, 250, 0, 250)
-        pointLight(180, 130, 255, 0, 0, 250)
-        specularMaterial(255)
-        ambientMaterial(255, 100, 255)
-        normalMaterial(255, 100, 255)
-        fill(255)
-
-        scale(50)
-
-        rotateX(frameCount * 0.1)
-
-        push()
-        rotateY(frameCount * 0.1)
-        translate(0, 1, 0)
-        model(gear)
-        pop()
-
-        push()
-        rotateY(-frameCount * 0.1)
-        translate(0, -1, 0)
-        model(gear)
+        scale(20)
+        ellipse(0, 0, 50, 50)
         pop()
     }
     class TailBox {
         constructor() {
-            this.lifetime = 100
+            this.lifetime = 70
             this.movedDistance = 0
             this.directionX = 0
             this.directionY = 0
-            this.directionZ = 0
             this.speed = 6
-            this.scaleDivideFactor = 100
+            this.scaleDivideFactor = 30
             this.brightness = 100
         }
         draw() {
+
+            let currentPos = createVector(
+                this.directionX * this.movedDistance * this.speed,
+                this.directionY * this.movedDistance * this.speed)
+            let mousePos = createVector(
+                mouseX - 250,
+                mouseY - 250
+            )
+            let distance = dist(currentPos.x, currentPos.y, mousePos.x, mousePos.y)
+            let difference = createVector(currentPos.x - mousePos.x, currentPos.y - mousePos.y)
+            if (distance < 40) {
+                this.directionX += difference.x * 0.001
+                this.directionY += difference.y * 0.001
+            }
+
             this.lifetime -= globalSpeed
             this.movedDistance += globalSpeed
             push()
             translate(
-                this.directionX * this.movedDistance * this.speed,
-                this.directionY * this.movedDistance * this.speed,
-                this.directionZ * this.movedDistance * this.speed)
+                currentPos.x,
+                currentPos.y)
             scale(this.lifetime / this.scaleDivideFactor)
             let currentHue = sin(frameCount * 0.003) * 80
             if (currentHue < 0) {
                 currentHue *= -1
             }
-            fill(170 + currentHue, this.movedDistance / 2 + random(20, 30), this.brightness)
-            sphere(10)
+            fill(170 + currentHue, this.movedDistance / 2 + random(10, 25), this.brightness)
+            ellipse(0, 0, 10)
             pop()
         }
     }
