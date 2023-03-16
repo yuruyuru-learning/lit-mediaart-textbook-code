@@ -28,7 +28,7 @@
 
         background(10, 10)
         fill(11)
-        textFont('Satisfy')
+        textFont('Geo')
         textAlign(CENTER, CENTER)
         textSize(80)
         text('YURUYURU', 250, 100)
